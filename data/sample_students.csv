@@ -1,0 +1,11 @@
+studentCode,department,currentSemester,attendanceRate,weeklyStudyHours,quizAverage,midtermScore,assignmentScore,priorFailures,finalOutcome
+STU1001,Computer Science,4,92.5,18.0,88.0,85.5,90.0,0,1
+STU1002,Computer Science,4,58.0,4.5,42.0,38.0,50.0,2,0
+STU1003,Software Engineering,3,74.0,9.0,62.0,58.0,65.0,1,0
+STU1004,Information Systems,5,96.0,22.0,94.0,91.0,95.0,0,1
+STU1005,Computer Science,4,65.0,6.0,50.0,48.0,55.0,1,0
+STU1006,Software Engineering,4,88.0,14.0,78.0,76.0,82.0,0,1
+STU1007,Data Science,3,81.0,12.5,70.0,72.0,75.0,0,1
+STU1008,Computer Science,6,52.0,3.0,35.0,30.0,40.0,3,0
+STU1009,Software Engineering,2,90.0,16.0,84.0,80.0,88.0,0,1
+STU1010,Information Systems,4,68.0,8.0,55.0,52.0,60.0,1,0

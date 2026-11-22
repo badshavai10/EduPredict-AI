@@ -1,0 +1,92 @@
+[
+  {
+    "algorithm": "LOGISTIC_REGRESSION",
+    "name": "Logistic Regression",
+    "accuracy": 1,
+    "precision": 1,
+    "recall": 1,
+    "f1Score": 1,
+    "confusionMatrix": [
+      [
+        6,
+        0
+      ],
+      [
+        0,
+        6
+      ]
+    ]
+  },
+  {
+    "algorithm": "DECISION_TREE",
+    "name": "Decision Tree (CART)",
+    "accuracy": 1,
+    "precision": 1,
+    "recall": 1,
+    "f1Score": 1,
+    "confusionMatrix": [
+      [
+        6,
+        0
+      ],
+      [
+        0,
+        6
+      ]
+    ]
+  },
+  {
+    "algorithm": "RANDOM_FOREST",
+    "name": "Random Forest",
+    "accuracy": 1,
+    "precision": 1,
+    "recall": 1,
+    "f1Score": 1,
+    "confusionMatrix": [
+      [
+        6,
+        0
+      ],
+      [
+        0,
+        6
+      ]
+    ]
+  },
+  {
+    "algorithm": "KNN",
+    "name": "K-Nearest Neighbors (KNN)",
+    "accuracy": 1,
+    "precision": 1,
+    "recall": 1,
+    "f1Score": 1,
+    "confusionMatrix": [
+      [
+        6,
+        0
+      ],
+      [
+        0,
+        6
+      ]
+    ]
+  },
+  {
+    "algorithm": "SVM",
+    "name": "Support Vector Machine (SVM)",
+    "accuracy": 1,
+    "precision": 1,
+    "recall": 1,
+    "f1Score": 1,
+    "confusionMatrix": [
+      [
+        6,
+        0
+      ],
+      [
+        0,
+        6
+      ]
+    ]
+  }
+]

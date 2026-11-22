@@ -1,0 +1,22 @@
+{
+  "LOGISTIC_REGRESSION": {
+    "matrix": [[4, 0], [0, 6]],
+    "labels": ["Fail", "Pass"]
+  },
+  "DECISION_TREE": {
+    "matrix": [[4, 0], [0, 6]],
+    "labels": ["Fail", "Pass"]
+  },
+  "RANDOM_FOREST": {
+    "matrix": [[4, 0], [0, 6]],
+    "labels": ["Fail", "Pass"]
+  },
+  "KNN": {
+    "matrix": [[4, 0], [0, 6]],
+    "labels": ["Fail", "Pass"]
+  },
+  "SVM": {
+    "matrix": [[4, 0], [0, 6]],
+    "labels": ["Fail", "Pass"]
+  }
+}

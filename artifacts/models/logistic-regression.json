@@ -1,0 +1,23 @@
+{
+  "name": "Logistic Regression",
+  "algorithm": "LOGISTIC_REGRESSION",
+  "weights": [
+    [
+      -0.34507652168182185,
+      1.154371350499016,
+      1.2272041029631127,
+      1.108266141263932,
+      1.2614064998326577,
+      1.2249437479371956,
+      -1.2604444619699027
+    ]
+  ],
+  "classes": [
+    0,
+    1
+  ],
+  "learningRate": 0.05,
+  "fitIntercept": true,
+  "lambda": 0.01,
+  "isFitted": true
+}

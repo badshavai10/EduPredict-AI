@@ -1,0 +1,206 @@
+// EduPredict AI — Prisma Schema
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  STUDENT
+  INSTRUCTOR
+  ACADEMIC_ADVISOR
+  ADMIN
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ModelAlgorithm {
+  LOGISTIC_REGRESSION
+  DECISION_TREE_CART
+  RANDOM_FOREST
+  K_NEAREST_NEIGHBORS
+  SUPPORT_VECTOR_MACHINE
+}
+
+enum RecommendationStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  DISMISSED
+}
+
+enum RecommendationType {
+  STUDY_HABIT_ADJUSTMENT
+  TUTORING_REFERRAL
+  ATTENDANCE_INTERVENTION
+  ADVISOR_MEETING
+  COURSE_LOAD_REDUCTION
+  RESOURCE_RECOMMENDATION
+}
+
+// Authentication Models (Better Auth Compatible)
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  role          Role      @default(STUDENT)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  studentProfile Student?
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@map("accounts")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verifications")
+}
+
+// EduPredict Core Domain Models
+model Student {
+  id               String           @id @default(cuid())
+  studentCode      String           @unique
+  userId           String?          @unique
+  user             User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  department       String
+  currentSemester  Int
+  cumulativeGpa    Float            @default(0.0)
+  attendanceRate   Float            @default(100.0)
+  weeklyStudyHours Float            @default(0.0)
+  priorFailures    Int              @default(0)
+  currentRiskLevel RiskLevel        @default(LOW)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  academicRecords  AcademicRecord[]
+  predictions      Prediction[]
+  recommendations  Recommendation[]
+
+  @@map("students")
+}
+
+model AcademicRecord {
+  id              String   @id @default(cuid())
+  studentId       String
+  student         Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseCode      String
+  courseName      String
+  semester        Int
+  creditHours     Float
+  attendanceRate  Float
+  quizAverage     Float
+  midtermScore    Float
+  assignmentScore Float
+  finalExamScore  Float?
+  gradePoint      Float?
+  letterGrade     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("academic_records")
+}
+
+model ModelRegistry {
+  id               String         @id @default(cuid())
+  algorithm        ModelAlgorithm
+  version          String
+  hyperparameters  Json
+  metrics          Json
+  featureColumns   String[]
+  modelArtifactUri String?
+  isActive         Boolean        @default(false)
+  trainedAt        DateTime       @default(now())
+  predictions      Prediction[]
+
+  @@map("model_registry")
+}
+
+model Prediction {
+  id                  String         @id @default(cuid())
+  studentId           String
+  student             Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  modelId             String?
+  model               ModelRegistry? @relation(fields: [modelId], references: [id], onDelete: SetNull)
+  predictedOutcome    String
+  riskLevel           RiskLevel
+  confidenceScore     Float
+  classProbabilities  Json
+  featureAttributions Json?
+  createdAt           DateTime       @default(now())
+
+  recommendations     Recommendation[]
+
+  @@map("predictions")
+}
+
+model Recommendation {
+  id              String               @id @default(cuid())
+  studentId       String
+  student         Student              @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  predictionId    String?
+  prediction      Prediction?          @relation(fields: [predictionId], references: [id], onDelete: SetNull)
+  type            RecommendationType
+  title           String
+  description     String
+  priority        RiskLevel            @default(MEDIUM)
+  status          RecommendationStatus @default(PENDING)
+  actionableSteps String[]
+  facultyNotes    String?
+  completedAt     DateTime?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@map("recommendations")
+}
