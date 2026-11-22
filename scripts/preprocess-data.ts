@@ -3,6 +3,8 @@ import path from 'node:path';
 import Papa from 'papaparse';
 import { StandardScaler } from '../src/ml/preprocessing/scaling';
 
+import { FEATURE_COLUMNS } from '../src/ml/model-config';
+
 const rawPath = path.resolve(process.cwd(), 'data/raw/student_performance.csv');
 const processedDir = path.resolve(process.cwd(), 'data/processed');
 
@@ -17,14 +19,7 @@ const parsed = Papa.parse<Record<string, unknown>>(fileContent, {
   skipEmptyLines: true,
 });
 
-const featureCols = [
-  'attendanceRate',
-  'weeklyStudyHours',
-  'quizAverage',
-  'midtermScore',
-  'assignmentScore',
-  'priorFailures',
-];
+const featureCols = [...FEATURE_COLUMNS];
 
 const features: number[][] = [];
 const labels: number[] = [];

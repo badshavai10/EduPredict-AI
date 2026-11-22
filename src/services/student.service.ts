@@ -27,15 +27,43 @@ export class StudentService {
   }
 
   public static async createStudent(data: StudentFormValues) {
+    const totalScore = Number(
+      (
+        data.quiz +
+        data.assignment +
+        data.midterm +
+        data.final +
+        data.attendance +
+        data.presentation
+      ).toFixed(2)
+    );
+
+    let currentRiskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' = 'LOW';
+    if (totalScore < 45 || data.attendance < 3.0 || data.final < 14) {
+      currentRiskLevel = 'CRITICAL';
+    } else if (totalScore < 60 || data.midterm < 11 || data.attendance < 3.5) {
+      currentRiskLevel = 'HIGH';
+    } else if (totalScore < 75) {
+      currentRiskLevel = 'MEDIUM';
+    }
+
     return prisma.student.create({
       data: {
         studentCode: data.studentCode,
         department: data.department,
         currentSemester: data.currentSemester,
         cumulativeGpa: data.cumulativeGpa,
-        attendanceRate: data.attendanceRate,
-        weeklyStudyHours: data.weeklyStudyHours,
-        priorFailures: data.priorFailures,
+        quiz: data.quiz,
+        assignment: data.assignment,
+        midterm: data.midterm,
+        final: data.final,
+        attendance: data.attendance,
+        presentation: data.presentation,
+        totalScore,
+        attendanceRate: data.attendanceRate ?? (data.attendance / 7) * 100,
+        weeklyStudyHours: data.weeklyStudyHours ?? 10,
+        priorFailures: data.priorFailures ?? 0,
+        currentRiskLevel,
       },
     });
   }

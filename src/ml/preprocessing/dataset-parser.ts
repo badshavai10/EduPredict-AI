@@ -4,13 +4,22 @@ import type { Dataset, TrainTestSplitResult } from '../types';
 
 export const StudentAcademicRecordSchema = z.object({
   studentCode: z.string(),
-  currentSemester: z.coerce.number(),
-  attendanceRate: z.coerce.number().min(0).max(100),
-  weeklyStudyHours: z.coerce.number().min(0),
-  quizAverage: z.coerce.number().min(0).max(100),
-  midtermScore: z.coerce.number().min(0).max(100),
-  assignmentScore: z.coerce.number().min(0).max(100),
-  priorFailures: z.coerce.number().min(0),
+  department: z.string().optional(),
+  currentSemester: z.coerce.number().optional(),
+  quiz: z.coerce.number().min(0).max(15).optional(),
+  assignment: z.coerce.number().min(0).max(5).optional(),
+  midterm: z.coerce.number().min(0).max(25).optional(),
+  final: z.coerce.number().min(0).max(40).optional(),
+  attendance: z.coerce.number().min(0).max(7).optional(),
+  presentation: z.coerce.number().min(0).max(8).optional(),
+  totalScore: z.coerce.number().min(0).max(100).optional(),
+  // legacy compatibility
+  attendanceRate: z.coerce.number().min(0).max(100).optional(),
+  weeklyStudyHours: z.coerce.number().min(0).optional(),
+  quizAverage: z.coerce.number().min(0).max(100).optional(),
+  midtermScore: z.coerce.number().min(0).max(100).optional(),
+  assignmentScore: z.coerce.number().min(0).max(100).optional(),
+  priorFailures: z.coerce.number().min(0).optional(),
   finalOutcome: z.union([z.string(), z.number()]),
 });
 

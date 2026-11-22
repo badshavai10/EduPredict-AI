@@ -4,15 +4,16 @@ import {
   AcademicRuleEngine,
 } from '../../src/ml/recommendations';
 
-describe('Academic Recommendation Engine', () => {
-  it('triggers critical intervention for low attendance (< 60%)', () => {
+describe('Academic Recommendation Engine (100-Mark System)', () => {
+  it('triggers critical intervention for low attendance (< 3.0 out of 7)', () => {
     const student = {
       studentCode: 'STU-9901',
-      attendanceRate: 52.0,
-      weeklyStudyHours: 15.0,
-      quizAverage: 80.0,
-      midtermScore: 75.0,
-      priorFailures: 0,
+      quiz: 12.0,
+      assignment: 4.0,
+      midterm: 20.0,
+      final: 32.0,
+      attendance: 2.5, // < 3.0 out of 7
+      presentation: 6.5,
       predictedOutcome: 'PASS' as const,
     };
 
@@ -23,36 +24,38 @@ describe('Academic Recommendation Engine', () => {
     expect(attendanceRec?.priority).toBe('CRITICAL');
   });
 
-  it('triggers study habit recommendation for low study hours (< 10 hrs)', () => {
+  it('triggers assignment recommendation for low assignment score (< 2.5 out of 5)', () => {
     const student = {
       studentCode: 'STU-9902',
-      attendanceRate: 88.0,
-      weeklyStudyHours: 5.0,
-      quizAverage: 70.0,
-      midtermScore: 68.0,
-      priorFailures: 0,
+      quiz: 11.0,
+      assignment: 1.8, // < 2.5 out of 5
+      midterm: 18.0,
+      final: 30.0,
+      attendance: 6.0,
+      presentation: 6.0,
       predictedOutcome: 'PASS' as const,
     };
 
     const recommendations = AcademicRuleEngine.evaluateInterventions(student);
-    const studyRec = recommendations.find((r) => r.category === 'STUDY_HABIT');
+    const assignRec = recommendations.find((r) => r.category === 'STUDY_HABIT');
 
-    expect(studyRec).toBeDefined();
-    expect(studyRec?.title).toContain('Study Plan');
+    expect(assignRec).toBeDefined();
+    expect(assignRec?.title).toContain('Assignment Completion');
   });
 
-  it('generates a full personalized plan with risk score', () => {
+  it('generates a full personalized plan with critical risk level for total < 45/100', () => {
     const student = {
       studentCode: 'STU-9903',
-      attendanceRate: 55.0,
-      weeklyStudyHours: 4.0,
-      quizAverage: 45.0,
-      midtermScore: 38.0,
-      priorFailures: 2,
+      quiz: 5.5,
+      assignment: 1.8,
+      midterm: 8.5,
+      final: 13.0,
+      attendance: 2.5,
+      presentation: 3.2, // Total = 34.5 / 100 (< 45)
       predictedOutcome: 'FAIL' as const,
     };
 
-    const plan = AcademicRecommendationService.generatePlan(student, 2, 0.94);
+    const plan = AcademicRecommendationService.generatePlan(student, 0, 0.96);
     expect(plan.riskLevel).toBe('CRITICAL');
     expect(plan.recommendations.length).toBeGreaterThanOrEqual(3);
   });

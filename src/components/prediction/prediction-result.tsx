@@ -4,6 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 interface PredictionResultProps {
   data: {
     studentCode: string;
+    totalScore?: number;
+    componentScores?: {
+      quiz: number;
+      assignment: number;
+      midterm: number;
+      final: number;
+      attendance: number;
+      presentation: number;
+    };
     prediction: {
       predictedLabel: string;
       confidence: number;
@@ -46,19 +55,26 @@ export function PredictionResult({ data }: PredictionResultProps) {
               )}
               Prediction: {data.prediction.predictedLabel} ({Math.round(data.prediction.confidence * 100)}% Confidence)
             </CardTitle>
-            <span
-              className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-                data.riskLevel === 'CRITICAL'
-                  ? 'bg-red-100 text-red-800'
-                  : data.riskLevel === 'HIGH'
-                  ? 'bg-orange-100 text-orange-800'
-                  : data.riskLevel === 'MEDIUM'
-                  ? 'bg-amber-100 text-amber-800'
-                  : 'bg-emerald-100 text-emerald-800'
-              }`}
-            >
-              {data.riskLevel} RISK
-            </span>
+            <div className="flex items-center gap-2">
+              {data.totalScore !== undefined && (
+                <span className="text-xs font-bold px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
+                  Total: {data.totalScore}/100
+                </span>
+              )}
+              <span
+                className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+                  data.riskLevel === 'CRITICAL'
+                    ? 'bg-red-100 text-red-800'
+                    : data.riskLevel === 'HIGH'
+                    ? 'bg-orange-100 text-orange-800'
+                    : data.riskLevel === 'MEDIUM'
+                    ? 'bg-amber-100 text-amber-800'
+                    : 'bg-emerald-100 text-emerald-800'
+                }`}
+              >
+                {data.riskLevel} RISK
+              </span>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -66,6 +82,47 @@ export function PredictionResult({ data }: PredictionResultProps) {
             Student: <span className="font-semibold">{data.studentCode}</span>. Academic intervention engine generated{' '}
             {data.recommendations.length} prescriptive recommendation(s).
           </p>
+
+          {data.componentScores && (
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mt-3 pt-3 border-t border-slate-200/60 dark:border-slate-800">
+              <div className="text-center p-1.5 rounded bg-slate-50 dark:bg-slate-800/50">
+                <span className="text-[10px] text-slate-500 block uppercase">Quiz</span>
+                <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                  {data.componentScores.quiz}/15
+                </span>
+              </div>
+              <div className="text-center p-1.5 rounded bg-slate-50 dark:bg-slate-800/50">
+                <span className="text-[10px] text-slate-500 block uppercase">Assign</span>
+                <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                  {data.componentScores.assignment}/5
+                </span>
+              </div>
+              <div className="text-center p-1.5 rounded bg-slate-50 dark:bg-slate-800/50">
+                <span className="text-[10px] text-slate-500 block uppercase">Midterm</span>
+                <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                  {data.componentScores.midterm}/25
+                </span>
+              </div>
+              <div className="text-center p-1.5 rounded bg-slate-50 dark:bg-slate-800/50">
+                <span className="text-[10px] text-slate-500 block uppercase">Final</span>
+                <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                  {data.componentScores.final}/40
+                </span>
+              </div>
+              <div className="text-center p-1.5 rounded bg-slate-50 dark:bg-slate-800/50">
+                <span className="text-[10px] text-slate-500 block uppercase">Attendance</span>
+                <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                  {data.componentScores.attendance}/7
+                </span>
+              </div>
+              <div className="text-center p-1.5 rounded bg-slate-50 dark:bg-slate-800/50">
+                <span className="text-[10px] text-slate-500 block uppercase">Presentation</span>
+                <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                  {data.componentScores.presentation}/8
+                </span>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

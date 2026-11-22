@@ -117,6 +117,13 @@ model Student {
   department       String
   currentSemester  Int
   cumulativeGpa    Float            @default(0.0)
+  quiz             Float            @default(0.0)   // 0–15 marks
+  assignment       Float            @default(0.0)   // 0–5 marks
+  midterm          Float            @default(0.0)   // 0–25 marks
+  final            Float            @default(0.0)   // 0–40 marks
+  attendance       Float            @default(0.0)   // 0–7 marks
+  presentation     Float            @default(0.0)   // 0–8 marks
+  totalScore       Float            @default(0.0)   // 0–100 marks
   attendanceRate   Float            @default(100.0)
   weeklyStudyHours Float            @default(0.0)
   priorFailures    Int              @default(0)
@@ -139,10 +146,17 @@ model AcademicRecord {
   courseName      String
   semester        Int
   creditHours     Float
-  attendanceRate  Float
-  quizAverage     Float
-  midtermScore    Float
-  assignmentScore Float
+  quiz            Float    @default(0.0)   // 0–15 marks
+  assignment      Float    @default(0.0)   // 0–5 marks
+  midterm         Float    @default(0.0)   // 0–25 marks
+  final           Float?   @default(0.0)   // 0–40 marks
+  attendance      Float    @default(0.0)   // 0–7 marks
+  presentation    Float    @default(0.0)   // 0–8 marks
+  totalScore      Float    @default(0.0)   // 0–100 marks
+  attendanceRate  Float    @default(100.0)
+  quizAverage     Float?
+  midtermScore    Float?
+  assignmentScore Float?
   finalExamScore  Float?
   gradePoint      Float?
   letterGrade     String?

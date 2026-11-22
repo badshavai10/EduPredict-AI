@@ -2,63 +2,73 @@ import { Maximize2 } from 'lucide-react';
 
 const previewRows = [
   {
-    id: 'STU-2021-001',
-    att: '91.15',
-    study: '18.5',
-    gpa: '3.68',
-    quiz: '88.0',
-    assign: '90.2',
+    id: 'STU1001',
+    quiz: '13.5',
+    assign: '4.8',
+    midterm: '22.5',
+    final: '35.0',
+    att: '6.5',
+    pres: '7.5',
+    total: '89.8',
     gradeLabel: 'High Pass',
     gradeType: 'high-pass',
     tierLabel: 'Tier 1 (Low Risk)',
     tierType: 'low',
   },
   {
-    id: 'STU-2021-002',
-    att: '57.45',
-    study: '4.0',
-    gpa: '1.90',
-    quiz: '42.0',
-    assign: '38.0',
-    gradeLabel: 'Critical Drop',
+    id: 'STU1002',
+    quiz: '5.5',
+    assign: '2.0',
+    midterm: '9.0',
+    final: '14.5',
+    att: '2.8',
+    pres: '3.2',
+    total: '37.0',
+    gradeLabel: 'Critical Deficit',
     gradeType: 'critical',
-    tierLabel: 'Tier 3 (High Risk)',
+    tierLabel: 'Tier 4 (Critical)',
     tierType: 'critical',
   },
   {
-    id: 'STU-2021-003',
-    att: '75.40',
-    study: '10.0',
-    gpa: '2.75',
-    quiz: '67.0',
-    assign: '68.0',
-    gradeLabel: 'Standard',
+    id: 'STU1003',
+    quiz: '10.5',
+    assign: '3.5',
+    midterm: '16.5',
+    final: '26.0',
+    att: '5.2',
+    pres: '5.8',
+    total: '67.5',
+    gradeLabel: 'Standard Pass',
     gradeType: 'standard',
     tierLabel: 'Tier 2 (Moderate)',
     tierType: 'moderate',
   },
   {
-    id: 'STU-2021-004',
-    att: '94.65',
-    study: '21.0',
-    gpa: '3.92',
-    quiz: '94.0',
-    assign: '95.0',
+    id: 'STU1004',
+    quiz: '14.5',
+    assign: '5.0',
+    midterm: '24.0',
+    final: '38.0',
+    att: '6.8',
+    pres: '7.8',
+    total: '96.1',
     gradeLabel: 'High Pass',
     gradeType: 'high-pass',
     tierLabel: 'Tier 1 (Low Risk)',
     tierType: 'low',
   },
   {
-    id: 'STU-2021-005',
-    att: '71.85',
-    study: '8.5',
-    gpa: '2.50',
-    quiz: '60.0',
-    assign: '64.0',
-    gradeLabel: 'Warning',
+    id: 'STU1005',
+    quiz: '8.0',
+    assign: '2.5',
+    midterm: '12.0',
+    final: '21.0',
+    att: '4.2',
+    pres: '4.5',
+    total: '52.2',
+    gradeLabel: 'At-Risk',
     gradeType: 'warning',
-    tierLabel: 'Tier 2 (Moderate)',
+    tierLabel: 'Tier 3 (High Risk)',
     tierType: 'moderate',
   },
 ];
@@ -70,13 +80,13 @@ export function DatasetPreviewTable() {
       <div className="flex items-center justify-between">
         <div>
           <span className="text-[10px] font-bold text-blue-600 tracking-wider uppercase block">
-            SANITY CHECK
+            SANITY CHECK (100-MARK SYSTEM)
           </span>
           <h3 className="text-sm font-bold text-slate-900 tracking-tight mt-0.5">
-            Dataset Preview
+            Dataset Preview & Mark Distribution
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">
-            Rendering first 5 rows out of 1,250 records detected in memory cache.
+            Rendering first 5 rows with 6 assessment components (Quiz: 15, Assign: 5, Mid: 25, Final: 40, Att: 7, Pres: 8).
           </p>
         </div>
 
@@ -96,32 +106,42 @@ export function DatasetPreviewTable() {
         <table className="w-full text-left text-xs">
           <thead className="bg-[#0f172a] text-slate-200 text-[10px] uppercase font-bold tracking-wider">
             <tr>
-              <th className="px-4 py-3">STUD_ID</th>
-              <th className="px-4 py-3">ATT_PCT</th>
-              <th className="px-4 py-3">WEEKLY_STUDY_HR</th>
-              <th className="px-4 py-3">PREV_GPA</th>
-              <th className="px-4 py-3">QUIZ_AVG</th>
-              <th className="px-4 py-3">ASSIGN_SCORE</th>
-              <th className="px-4 py-3">FINAL_GRADE_CATEGORY</th>
-              <th className="px-4 py-3">INFERRED TIER</th>
+              <th className="px-3 py-3">STUD_ID</th>
+              <th className="px-2 py-3 text-center">QUIZ (15)</th>
+              <th className="px-2 py-3 text-center">ASSIGN (5)</th>
+              <th className="px-2 py-3 text-center">MIDTERM (25)</th>
+              <th className="px-2 py-3 text-center">FINAL (40)</th>
+              <th className="px-2 py-3 text-center">ATT (7)</th>
+              <th className="px-2 py-3 text-center">PRES (8)</th>
+              <th className="px-3 py-3 text-center font-extrabold text-blue-400">TOTAL (100)</th>
+              <th className="px-3 py-3">OUTCOME</th>
+              <th className="px-3 py-3">INFERRED TIER</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 font-mono text-[11px]">
             {previewRows.map((row) => (
               <tr key={row.id} className="hover:bg-slate-50/70 transition">
-                <td className="px-4 py-3 font-semibold text-blue-600">{row.id}</td>
-                <td className={`px-4 py-3 ${row.tierType === 'critical' ? 'text-red-600 font-bold' : 'text-slate-700'}`}>
+                <td className="px-3 py-3 font-semibold text-blue-600">{row.id}</td>
+                <td className="px-2 py-3 text-center text-slate-700">{row.quiz}</td>
+                <td className="px-2 py-3 text-center text-slate-700">{row.assign}</td>
+                <td className={`px-2 py-3 text-center ${Number(row.midterm) < 11 ? 'text-red-600 font-bold' : 'text-slate-700'}`}>
+                  {row.midterm}
+                </td>
+                <td className={`px-2 py-3 text-center ${Number(row.final) < 18 ? 'text-red-600 font-bold' : 'text-slate-700'}`}>
+                  {row.final}
+                </td>
+                <td className={`px-2 py-3 text-center ${Number(row.att) < 3.5 ? 'text-red-600 font-bold' : 'text-slate-700'}`}>
                   {row.att}
                 </td>
-                <td className={`px-4 py-3 ${row.tierType === 'critical' ? 'text-red-600 font-bold' : 'text-slate-700'}`}>
-                  {row.study}
+                <td className={`px-2 py-3 text-center ${Number(row.pres) < 4 ? 'text-red-600 font-bold' : 'text-slate-700'}`}>
+                  {row.pres}
                 </td>
-                <td className="px-4 py-3 text-slate-700">{row.gpa}</td>
-                <td className="px-4 py-3 text-slate-700">{row.quiz}</td>
-                <td className="px-4 py-3 text-slate-700">{row.assign}</td>
+                <td className="px-3 py-3 text-center font-bold text-blue-600">
+                  {row.total}
+                </td>
 
                 {/* Final Grade Category Badge */}
-                <td className="px-4 py-3 font-sans">
+                <td className="px-3 py-3 font-sans">
                   <span
                     className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
                       row.gradeType === 'high-pass'

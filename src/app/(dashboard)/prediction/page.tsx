@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import {
   BarChart2,
@@ -28,12 +28,12 @@ interface StudentPreset {
   office: string;
   earlyFlags: string;
   flagDate: string;
-  attendance: number;
-  studyHours: number;
-  gpa: number;
-  quizAvg: number;
-  coursework: number;
-  lmsLogins: number;
+  quiz: number;          // 0–15
+  assignment: number;    // 0–5
+  midterm: number;       // 0–25
+  finalExam: number;     // 0–40
+  attendance: number;    // 0–7
+  presentation: number;  // 0–8
   deficitProbability: number;
 }
 
@@ -48,12 +48,12 @@ const studentPresets: Record<string, StudentPreset> = {
     office: 'Hall B-216',
     earlyFlags: '2 Unexcused Absences',
     flagDate: 'Flagged on Oct 14',
-    attendance: 58,
-    studyHours: 6.5,
-    gpa: 1.92,
-    quizAvg: 52.0,
-    coursework: 64.0,
-    lmsLogins: 3.0,
+    quiz: 6.0,
+    assignment: 2.1,
+    midterm: 9.5,
+    finalExam: 15.0,
+    attendance: 2.8,
+    presentation: 3.5,
     deficitProbability: 91.4,
   },
   'STU-2024-032': {
@@ -66,12 +66,12 @@ const studentPresets: Record<string, StudentPreset> = {
     office: 'Hall C-104',
     earlyFlags: '3 Missing LMS Deadlines',
     flagDate: 'Flagged on Oct 20',
-    attendance: 61,
-    studyHours: 4.1,
-    gpa: 2.08,
-    quizAvg: 54.5,
-    coursework: 58.0,
-    lmsLogins: 4.0,
+    quiz: 7.5,
+    assignment: 2.4,
+    midterm: 11.5,
+    finalExam: 21.0,
+    attendance: 3.8,
+    presentation: 4.4,
     deficitProbability: 86.2,
   },
   'STU-2024-071': {
@@ -84,12 +84,12 @@ const studentPresets: Record<string, StudentPreset> = {
     office: 'Hall B-216',
     earlyFlags: '1 Late Submission',
     flagDate: 'Flagged on Oct 18',
-    attendance: 78,
-    studyHours: 6.4,
-    gpa: 2.45,
-    quizAvg: 67.0,
-    coursework: 74.0,
-    lmsLogins: 6.4,
+    quiz: 10.5,
+    assignment: 3.6,
+    midterm: 16.5,
+    finalExam: 26.5,
+    attendance: 5.2,
+    presentation: 5.8,
     deficitProbability: 54.0,
   },
   'STU-2024-114': {
@@ -102,12 +102,12 @@ const studentPresets: Record<string, StudentPreset> = {
     office: 'Hall C-104',
     earlyFlags: 'None (Good Standing)',
     flagDate: 'Verified Oct 22',
-    attendance: 96,
-    studyHours: 18.9,
-    gpa: 3.84,
-    quizAvg: 92.4,
-    coursework: 95.0,
-    lmsLogins: 18.9,
+    quiz: 14.5,
+    assignment: 4.9,
+    midterm: 23.8,
+    finalExam: 37.5,
+    attendance: 6.8,
+    presentation: 7.8,
     deficitProbability: 4.2,
   },
 };
@@ -117,14 +117,23 @@ export default function AIPredictionPage() {
   const [inputMode, setInputMode] = useState<'Dataset Select' | 'Manual Entry'>('Dataset Select');
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<'rf' | 'gbdt' | 'svm' | 'lr' | 'knn' | 'ensemble'>('rf');
 
-  // Active student parameters
+  // Active student parameters (100-mark breakdown)
   const currentPreset = studentPresets[selectedStudentCode] || studentPresets['STU-2024-041'];
+  const [quiz, setQuiz] = useState(currentPreset.quiz);
+  const [assignment, setAssignment] = useState(currentPreset.assignment);
+  const [midterm, setMidterm] = useState(currentPreset.midterm);
+  const [finalExam, setFinalExam] = useState(currentPreset.finalExam);
   const [attendance, setAttendance] = useState(currentPreset.attendance);
-  const [studyHours, setStudyHours] = useState(currentPreset.studyHours);
-  const [gpa, setGpa] = useState(currentPreset.gpa);
-  const [quizAvg, setQuizAvg] = useState(currentPreset.quizAvg);
-  const [coursework, setCoursework] = useState(currentPreset.coursework);
-  const [lmsLogins, setLmsLogins] = useState(currentPreset.lmsLogins);
+  const [presentation, setPresentation] = useState(currentPreset.presentation);
+
+  const totalMarks = Number((quiz + assignment + midterm + finalExam + attendance + presentation).toFixed(1));
+
+  const riskTier = useMemo(() => {
+    if (totalMarks >= 75) return { label: 'Low Risk (Good)', color: 'bg-emerald-100 text-emerald-800' };
+    if (totalMarks >= 60) return { label: 'Moderate Risk (Average)', color: 'bg-blue-100 text-blue-800' };
+    if (totalMarks >= 45) return { label: 'High Risk (At-Risk)', color: 'bg-amber-100 text-amber-800' };
+    return { label: 'Critical Risk', color: 'bg-red-100 text-red-800' };
+  }, [totalMarks]);
 
   const [notes, setNotes] = useState(
     'Student Marcus Vance cited conflicting 24-hr work shifts on Tuesday/Thursday mornings affecting attendance. Receptive to peer tutoring if scheduled in evenings.'
@@ -142,13 +151,13 @@ export default function AIPredictionPage() {
     setSelectedStudentCode(code);
     const p = studentPresets[code];
     if (p) {
+      setQuiz(p.quiz);
+      setAssignment(p.assignment);
+      setMidterm(p.midterm);
+      setFinalExam(p.finalExam);
       setAttendance(p.attendance);
-      setStudyHours(p.studyHours);
-      setGpa(p.gpa);
-      setQuizAvg(p.quizAvg);
-      setCoursework(p.coursework);
-      setLmsLogins(p.lmsLogins);
-      showToast(`Loaded normalized telemetry for ${p.name} (${p.id}).`);
+      setPresentation(p.presentation);
+      showToast(`Loaded assessment marks for ${p.name} (${p.id}).`);
     }
   };
 
@@ -157,19 +166,19 @@ export default function AIPredictionPage() {
     showToast('Executing multi-model ensemble inference...');
     setTimeout(() => {
       setIsInferenceRunning(false);
-      showToast('Ensemble inference converged. Posterior risk: 91.4% (Tier 3 Critical Priority).');
+      showToast(`Inference complete: Total ${totalMarks}/100 • ${riskTier.label}`);
     }, 800);
   };
 
   const handleResetForm = () => {
     const p = studentPresets[selectedStudentCode];
     if (p) {
+      setQuiz(p.quiz);
+      setAssignment(p.assignment);
+      setMidterm(p.midterm);
+      setFinalExam(p.finalExam);
       setAttendance(p.attendance);
-      setStudyHours(p.studyHours);
-      setGpa(p.gpa);
-      setQuizAvg(p.quizAvg);
-      setCoursework(p.coursework);
-      setLmsLogins(p.lmsLogins);
+      setPresentation(p.presentation);
       showToast('Parameters reset to baseline dataset record.');
     }
   };
@@ -344,208 +353,204 @@ export default function AIPredictionPage() {
             </div>
           </div>
 
-          {/* Predictive Feature Matrix (6 Normalized Predictors) */}
+          {/* Predictive Feature Matrix (6 Assessment Predictors — 100 Marks System) */}
           <div className="p-5 rounded-2xl border border-slate-200 bg-white shadow-2xs space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded bg-blue-50 text-blue-600 flex items-center justify-center">
                   <Sliders className="w-3.5 h-3.5" />
                 </div>
                 <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                  Predictive Feature Matrix (6 Normalized Predictors)
+                  Assessment Feature Matrix (100 Marks Breakdown)
                 </h3>
               </div>
-              <button
-                type="button"
-                onClick={() => showToast('Feature values checked against SIS cohort normalization boundaries.')}
-                className="text-xs text-blue-600 hover:underline font-semibold"
-              >
-                Validate Bounds
-              </button>
+              <div className="flex items-center gap-2">
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${riskTier.color}`}>
+                  Score: {totalMarks}/100 • {riskTier.label}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => showToast('Feature values checked against institutional 100-mark schema.')}
+                  className="text-xs text-blue-600 hover:underline font-semibold"
+                >
+                  Validate Bounds
+                </button>
+              </div>
             </div>
 
             {/* 6 Predictor Cards Grid (2x3) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
-              {/* Feature 1: Course Attendance Rate */}
-              <div className="p-3.5 rounded-xl border border-red-200 bg-white shadow-2xs space-y-2">
+              {/* Feature 1: Quiz (15 Marks) */}
+              <div className={`p-3.5 rounded-xl border bg-white shadow-2xs space-y-2 ${quiz < 7 ? 'border-amber-200' : 'border-slate-200'}`}>
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800 text-[11px]">1. Course Attendance Rate</span>
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-100 text-red-700 uppercase">
-                    Critical Deficit
+                  <span className="font-bold text-slate-800 text-[11px]">1. Formative Quizzes</span>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${
+                    quiz < 7 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-50 text-emerald-700'
+                  }`}>
+                    {quiz < 7 ? 'Deficit (< 7/15)' : 'Passing Band'}
                   </span>
                 </div>
                 <div className="flex items-baseline justify-between">
-                  <span className="text-2xl font-black text-red-600">{attendance}%</span>
-                  <span className="text-[10px] text-slate-400">Min. accredited: 75%</span>
+                  <span className={`text-2xl font-black ${quiz < 7 ? 'text-amber-600' : 'text-slate-900'}`}>{quiz.toFixed(1)} / 15</span>
+                  <span className="text-[10px] text-slate-400">Passing: &ge; 7.0 (46.7%)</span>
                 </div>
                 <input
                   type="range"
-                  min="30"
-                  max="100"
-                  value={attendance}
-                  onChange={(e) => setAttendance(Number(e.target.value))}
-                  className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600"
-                />
-                <div className="flex justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100">
-                  <span>Observed: 16 / 28 Lectures</span>
-                  <span>Cohort Avg: 78.4%</span>
-                </div>
-                <div className="flex justify-between text-[10px]">
-                  <span className="text-red-600 font-bold">&minus;17% below requirement</span>
-                  <span className="text-slate-400">Impact: High Attrition Factor</span>
-                </div>
-              </div>
-
-              {/* Feature 2: Weekly Self-Study Hours */}
-              <div className="p-3.5 rounded-xl border border-slate-200 bg-white shadow-2xs space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800 text-[11px]">2. Weekly Self-Study Hours</span>
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100 uppercase">
-                    Moderate Risk
-                  </span>
-                </div>
-                <div className="flex items-baseline justify-between">
-                  <span className="text-2xl font-black text-slate-900">{studyHours} hrs</span>
-                  <span className="text-[10px] text-slate-400">Expected: 15.0 hrs/wk</span>
-                </div>
-                <input
-                  type="range"
-                  min="1"
-                  max="30"
-                  step="0.5"
-                  value={studyHours}
-                  onChange={(e) => setStudyHours(Number(e.target.value))}
+                  min="0"
+                  max="15"
+                  step="0.1"
+                  value={quiz}
+                  onChange={(e) => setQuiz(Number(e.target.value))}
                   className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                 />
                 <div className="flex justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100">
-                  <span>Self-Reported Log: {studyHours}h</span>
-                  <span>Dept Target: 15.0 hrs</span>
-                </div>
-                <div className="flex justify-between text-[10px]">
-                  <span className="text-amber-600 font-bold">56.7% under recommended</span>
-                  <span className="text-slate-400">Self-Study Deficit</span>
+                  <span>Continuous assessment weight</span>
+                  <span>Max: 15 Marks</span>
                 </div>
               </div>
 
-              {/* Feature 3: Cumulative GPA */}
-              <div className="p-3.5 rounded-xl border border-red-200 bg-white shadow-2xs space-y-2">
+              {/* Feature 2: Assignment (5 Marks) */}
+              <div className={`p-3.5 rounded-xl border bg-white shadow-2xs space-y-2 ${assignment < 2.5 ? 'border-amber-200' : 'border-slate-200'}`}>
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800 text-[11px]">3. Cumulative GPA (4.0 Max)</span>
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-100 text-red-700 uppercase">
-                    Probation Zone
+                  <span className="font-bold text-slate-800 text-[11px]">2. Assignments &amp; Homework</span>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${
+                    assignment < 2.5 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-50 text-emerald-700'
+                  }`}>
+                    {assignment < 2.5 ? 'Deficit (< 2.5/5)' : 'Good Track'}
                   </span>
                 </div>
                 <div className="flex items-baseline justify-between">
-                  <span className="text-2xl font-black text-red-600">{gpa.toFixed(2)}</span>
-                  <span className="text-[10px] text-slate-400">Good Standing: &ge; 2.00</span>
+                  <span className={`text-2xl font-black ${assignment < 2.5 ? 'text-amber-600' : 'text-slate-900'}`}>{assignment.toFixed(1)} / 5</span>
+                  <span className="text-[10px] text-slate-400">Passing: &ge; 2.5 (50%)</span>
                 </div>
                 <input
                   type="range"
-                  min="1.0"
-                  max="4.0"
-                  step="0.05"
-                  value={gpa}
-                  onChange={(e) => setGpa(Number(e.target.value))}
-                  className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600"
-                />
-                <div className="flex justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100">
-                  <span>Completed Credits: 48</span>
-                  <span>Major Median: 3.12</span>
-                </div>
-                <div className="flex justify-between text-[10px]">
-                  <span className="text-red-600 font-bold">Triggers Automatic Probation</span>
-                  <span className="text-slate-400">59.72% Deficit</span>
-                </div>
-              </div>
-
-              {/* Feature 4: Formative Quiz Average */}
-              <div className="p-3.5 rounded-xl border border-slate-200 bg-white shadow-2xs space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800 text-[11px]">4. Formative Quiz Average</span>
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100 uppercase">
-                    Near Threshold
-                  </span>
-                </div>
-                <div className="flex items-baseline justify-between">
-                  <span className="text-2xl font-black text-slate-900">{quizAvg.toFixed(1)}</span>
-                  <span className="text-[10px] text-slate-400">Passing benchmark: &ge; 60.0%</span>
-                </div>
-                <input
-                  type="range"
-                  min="20"
-                  max="100"
-                  value={quizAvg}
-                  onChange={(e) => setQuizAvg(Number(e.target.value))}
+                  min="0"
+                  max="5"
+                  step="0.1"
+                  value={assignment}
+                  onChange={(e) => setAssignment(Number(e.target.value))}
                   className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                 />
                 <div className="flex justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100">
-                  <span>4 Quizzes Counted</span>
-                  <span>Section Mean: 68.2</span>
-                </div>
-                <div className="flex justify-between text-[10px]">
-                  <span className="text-amber-600 font-bold">&minus;8.0% from passing grade</span>
-                  <span className="text-slate-400">Next Quiz in 3 days</span>
+                  <span>Deliverables &amp; Lab Reports</span>
+                  <span>Max: 5 Marks</span>
                 </div>
               </div>
 
-              {/* Feature 5: Coursework & Assignments */}
-              <div className="p-3.5 rounded-xl border border-slate-200 bg-white shadow-2xs space-y-2">
+              {/* Feature 3: Mid-term Exam (25 Marks) */}
+              <div className={`p-3.5 rounded-xl border bg-white shadow-2xs space-y-2 ${midterm < 11 ? 'border-red-200' : 'border-slate-200'}`}>
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800 text-[11px]">5. Coursework &amp; Assignments</span>
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase">
-                    Passing Buffer
+                  <span className="font-bold text-slate-800 text-[11px]">3. Mid-term Examination</span>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${
+                    midterm < 11 ? 'bg-red-100 text-red-700' : 'bg-emerald-50 text-emerald-700'
+                  }`}>
+                    {midterm < 11 ? 'Critical (< 11/25)' : 'Passed Midterm'}
                   </span>
                 </div>
                 <div className="flex items-baseline justify-between">
-                  <span className="text-2xl font-black text-slate-900">{coursework.toFixed(1)}</span>
-                  <span className="text-[10px] text-slate-400">Submission rate: 5 of 7 tasks</span>
-                </div>
-                <input
-                  type="range"
-                  min="20"
-                  max="100"
-                  value={coursework}
-                  onChange={(e) => setCoursework(Number(e.target.value))}
-                  className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
-                />
-                <div className="flex justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100">
-                  <span>2 Pending Submissions</span>
-                  <span>Cohort Mean: 76.5</span>
-                </div>
-                <div className="flex justify-between text-[10px]">
-                  <span className="text-emerald-600 font-bold">Moderately Protective</span>
-                  <span className="text-slate-400">Final Project Due Wk 12</span>
-                </div>
-              </div>
-
-              {/* Feature 6: LMS Portal Activity / Wk */}
-              <div className="p-3.5 rounded-xl border border-red-200 bg-white shadow-2xs space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800 text-[11px]">6. LMS Portal Activity / Wk</span>
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-100 text-red-700 uppercase">
-                    Low Engagement
-                  </span>
-                </div>
-                <div className="flex items-baseline justify-between">
-                  <span className="text-2xl font-black text-red-600">{lmsLogins.toFixed(1)}</span>
-                  <span className="text-[10px] text-slate-400">Weekly logins &amp; asset views</span>
+                  <span className={`text-2xl font-black ${midterm < 11 ? 'text-red-600' : 'text-slate-900'}`}>{midterm.toFixed(1)} / 25</span>
+                  <span className="text-[10px] text-slate-400">Passing: &ge; 11.0 (44%)</span>
                 </div>
                 <input
                   type="range"
                   min="0"
                   max="25"
-                  step="0.5"
-                  value={lmsLogins}
-                  onChange={(e) => setLmsLogins(Number(e.target.value))}
+                  step="0.1"
+                  value={midterm}
+                  onChange={(e) => setMidterm(Number(e.target.value))}
                   className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600"
                 />
                 <div className="flex justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100">
-                  <span>Last login: 3 days ago</span>
-                  <span>Active Peer Avg: 11.2</span>
+                  <span>Major mid-semester checkpoint</span>
+                  <span>Max: 25 Marks</span>
                 </div>
-                <div className="flex justify-between text-[10px]">
-                  <span className="text-red-600 font-bold">73% below expected logins</span>
-                  <span className="text-slate-400">Inactive on Weekends</span>
+              </div>
+
+              {/* Feature 4: Final Exam (40 Marks) */}
+              <div className={`p-3.5 rounded-xl border bg-white shadow-2xs space-y-2 ${finalExam < 18 ? 'border-red-200' : 'border-slate-200'}`}>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-800 text-[11px]">4. Final Examination</span>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${
+                    finalExam < 18 ? 'bg-red-100 text-red-700' : 'bg-emerald-50 text-emerald-700'
+                  }`}>
+                    {finalExam < 18 ? 'Deficit (< 18/40)' : 'Passing Projection'}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <span className={`text-2xl font-black ${finalExam < 18 ? 'text-red-600' : 'text-slate-900'}`}>{finalExam.toFixed(1)} / 40</span>
+                  <span className="text-[10px] text-slate-400">Passing: &ge; 18.0 (45%)</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="40"
+                  step="0.1"
+                  value={finalExam}
+                  onChange={(e) => setFinalExam(Number(e.target.value))}
+                  className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100">
+                  <span>Summative semester exam</span>
+                  <span>Max: 40 Marks</span>
+                </div>
+              </div>
+
+              {/* Feature 5: Attendance (7 Marks) */}
+              <div className={`p-3.5 rounded-xl border bg-white shadow-2xs space-y-2 ${attendance < 3.5 ? 'border-red-200' : 'border-slate-200'}`}>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-800 text-[11px]">5. Course Attendance</span>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${
+                    attendance < 3.5 ? 'bg-red-100 text-red-700' : 'bg-emerald-50 text-emerald-700'
+                  }`}>
+                    {attendance < 3.5 ? 'Deficit (< 3.5/7)' : 'Satisfactory'}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <span className={`text-2xl font-black ${attendance < 3.5 ? 'text-red-600' : 'text-slate-900'}`}>{attendance.toFixed(1)} / 7</span>
+                  <span className="text-[10px] text-slate-400">Passing: &ge; 3.5 (50%)</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="7"
+                  step="0.1"
+                  value={attendance}
+                  onChange={(e) => setAttendance(Number(e.target.value))}
+                  className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100">
+                  <span>Classroom and lab participation</span>
+                  <span>Max: 7 Marks</span>
+                </div>
+              </div>
+
+              {/* Feature 6: Presentation (8 Marks) */}
+              <div className={`p-3.5 rounded-xl border bg-white shadow-2xs space-y-2 ${presentation < 4 ? 'border-amber-200' : 'border-slate-200'}`}>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-800 text-[11px]">6. Oral Presentation &amp; Defense</span>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${
+                    presentation < 4 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-50 text-emerald-700'
+                  }`}>
+                    {presentation < 4 ? 'Deficit (< 4/8)' : 'Proficient'}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <span className={`text-2xl font-black ${presentation < 4 ? 'text-amber-600' : 'text-slate-900'}`}>{presentation.toFixed(1)} / 8</span>
+                  <span className="text-[10px] text-slate-400">Passing: &ge; 4.0 (50%)</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="8"
+                  step="0.1"
+                  value={presentation}
+                  onChange={(e) => setPresentation(Number(e.target.value))}
+                  className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100">
+                  <span>Project presentation &amp; communication</span>
+                  <span>Max: 8 Marks</span>
                 </div>
               </div>
             </div>
@@ -893,63 +898,75 @@ export default function AIPredictionPage() {
               versus the 28.5% cohort baseline:
             </p>
 
-            {/* 5 SHAP Attribution Bars */}
+            {/* 6 SHAP Attribution Bars (100-Mark Components) */}
             <div className="space-y-3.5 text-xs">
-              {/* Factor 1: Attendance */}
+              {/* Factor 1: Midterm Exam */}
               <div className="p-2.5 rounded-xl border border-red-100 bg-red-50/30">
                 <div className="flex items-center justify-between font-bold mb-1">
-                  <span className="text-slate-900 text-[11px]">1. Attendance Rate (58% vs 78% avg)</span>
-                  <span className="text-red-600 font-black">+35.0% Risk</span>
+                  <span className="text-slate-900 text-[11px]">1. Mid-term Exam ({midterm.toFixed(1)}/25 vs 18.0 avg)</span>
+                  <span className="text-red-600 font-black">+32.0% Risk</span>
                 </div>
                 <div className="flex justify-between text-[10px] text-slate-400">
-                  <span>Primary Driver; 12 missed lab and lecture blocks.</span>
+                  <span>Below critical passing threshold (&lt; 11/25).</span>
                   <span className="font-bold text-red-600">Top Predictive Factor</span>
                 </div>
               </div>
 
-              {/* Factor 2: Cumulative GPA */}
+              {/* Factor 2: Final Exam Projection */}
               <div className="p-2.5 rounded-xl border border-red-100 bg-red-50/30">
                 <div className="flex items-center justify-between font-bold mb-1">
-                  <span className="text-slate-900 text-[11px]">2. Cumulative GPA (1.92 vs 3.12 avg)</span>
+                  <span className="text-slate-900 text-[11px]">2. Final Exam Projection ({finalExam.toFixed(1)}/40 vs 28.0 avg)</span>
                   <span className="text-red-600 font-black">+28.5% Risk</span>
                 </div>
                 <div className="flex justify-between text-[10px] text-slate-400">
-                  <span>Prior semester academic probation carryover.</span>
-                  <span className="font-bold text-red-600">High Persistence Risk</span>
+                  <span>Below semester clearance benchmark (&lt; 18/40).</span>
+                  <span className="font-bold text-red-600">High Deficit Carryover</span>
                 </div>
               </div>
 
-              {/* Factor 3: Formative Quizzes */}
+              {/* Factor 3: Attendance */}
               <div className="p-2.5 rounded-xl border border-red-100 bg-red-50/30">
                 <div className="flex items-center justify-between font-bold mb-1">
-                  <span className="text-slate-900 text-[11px]">3. Formative Quizzes (52.0 vs 68.2 avg)</span>
-                  <span className="text-red-600 font-black">+16.2% Risk</span>
+                  <span className="text-slate-900 text-[11px]">3. Attendance Deficit ({attendance.toFixed(1)}/7 vs 5.5 avg)</span>
+                  <span className="text-red-600 font-black">+18.2% Risk</span>
                 </div>
                 <div className="flex justify-between text-[10px] text-slate-400">
-                  <span>Consistent gaps in mid-term assessment grasp.</span>
-                  <span className="font-bold text-blue-600">Remediable via Tutoring</span>
+                  <span>Engagement score under threshold (&lt; 3.5/7).</span>
+                  <span className="font-bold text-blue-600">Remediable via Counseling</span>
                 </div>
               </div>
 
-              {/* Factor 4: Study Hours */}
+              {/* Factor 4: Quizzes */}
               <div className="p-2.5 rounded-xl border border-red-100 bg-red-50/30">
                 <div className="flex items-center justify-between font-bold mb-1">
-                  <span className="text-slate-900 text-[11px]">4. Study Hours (6.5 hrs vs 15.0 target)</span>
+                  <span className="text-slate-900 text-[11px]">4. Formative Quizzes ({quiz.toFixed(1)}/15 vs 11.5 avg)</span>
                   <span className="text-red-600 font-black">+12.0% Risk</span>
                 </div>
                 <p className="text-[10px] text-slate-400">
-                  Under recommended self-study threshold; schedule conflict issue.
+                  Weekly topic comprehension gap (&lt; 7/15 marks threshold).
                 </p>
               </div>
 
-              {/* Factor 5: Coursework Submissions */}
-              <div className="p-2.5 rounded-xl border border-emerald-100 bg-emerald-50/30">
+              {/* Factor 5: Presentation */}
+              <div className="p-2.5 rounded-xl border border-amber-100 bg-amber-50/30">
                 <div className="flex items-center justify-between font-bold mb-1">
-                  <span className="text-slate-900 text-[11px]">5. Coursework Submissions (64%)</span>
-                  <span className="text-emerald-600 font-black">&minus;8.5% Protective</span>
+                  <span className="text-slate-900 text-[11px]">5. Presentation Score ({presentation.toFixed(1)}/8 vs 6.5 avg)</span>
+                  <span className="text-amber-700 font-black">+8.5% Risk</span>
                 </div>
                 <div className="flex justify-between text-[10px] text-slate-400">
-                  <span>Continuous engagement prevents withdrawal drop.</span>
+                  <span>Oral defense deficit; workshop recommended.</span>
+                  <span className="font-bold text-amber-600">Skill Development</span>
+                </div>
+              </div>
+
+              {/* Factor 6: Assignment Submissions */}
+              <div className="p-2.5 rounded-xl border border-emerald-100 bg-emerald-50/30">
+                <div className="flex items-center justify-between font-bold mb-1">
+                  <span className="text-slate-900 text-[11px]">6. Assignment Deliverables ({assignment.toFixed(1)}/5)</span>
+                  <span className="text-emerald-600 font-black">&minus;5.5% Protective</span>
+                </div>
+                <div className="flex justify-between text-[10px] text-slate-400">
+                  <span>Lab reports and homework submissions logged.</span>
                   <span className="font-bold text-emerald-600">Positive Foundation</span>
                 </div>
               </div>

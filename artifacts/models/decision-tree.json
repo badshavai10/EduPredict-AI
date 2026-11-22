@@ -14,10 +14,10 @@
     "minNumSamples": 3,
     "maxDepth": 10,
     "gainThreshold": 0.01,
-    "splitValue": 0.08024999259731623,
+    "splitValue": -0.3446190198312109,
     "splitColumn": 0,
-    "gain": 0.4999999999999999,
-    "numberSamples": 12,
+    "gain": 0.4549999999999995,
+    "numberSamples": 20,
     "left": {
       "kind": "classifier",
       "gainFunction": "gini",
@@ -28,7 +28,7 @@
       "gain": null,
       "distribution": [
         [
-          0.9999999999999999
+          0.9999999999999998
         ]
       ]
     },
@@ -43,7 +43,7 @@
       "distribution": [
         [
           0,
-          0.9999999999999999
+          0.9999999999999998
         ]
       ]
     }

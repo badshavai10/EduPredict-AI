@@ -20,6 +20,19 @@
   - **Logistic Regression (L2):** Vectorized custom TypeScript with L2 weight regularization.
   - **K-Nearest Neighbors (KNN):** Euclidean distance metric (`ml-knn`).
 - **Feature Attribution:** Pure TypeScript Shapley Value (SHAP) calculation engine.
+- **Official 100-Mark Grading Distribution:**
+  - **Quiz:** 15 marks (0–15) [Deficit trigger: < 7.0]
+  - **Assignment:** 5 marks (0–5) [Deficit trigger: < 2.5]
+  - **Mid-term Exam:** 25 marks (0–25) [Deficit trigger: < 11.0]
+  - **Final Exam:** 40 marks (0–40) [Deficit trigger: < 18.0]
+  - **Attendance:** 7 marks (0–7) [Deficit trigger: < 3.5]
+  - **Presentation:** 8 marks (0–8) [Deficit trigger: < 4.0]
+  - **Total:** 100 marks
+- **Target Risk Classification Thresholds (Out of 100):**
+  - **Low Risk (Good):** Total $\ge 75$
+  - **Moderate Risk (Average):** Total $60 \le \text{Score} < 75$
+  - **High Risk (At-Risk):** Total $45 \le \text{Score} < 60$
+  - **Critical Risk:** Total $< 45$
 - **Package Manager:** `pnpm` exclusively.
 
 ---

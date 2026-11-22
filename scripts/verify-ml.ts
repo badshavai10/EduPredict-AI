@@ -18,12 +18,12 @@ async function runBenchmark() {
 
   const parsed = DatasetParser.parseCsvString(csvContent);
   const featureCols = [
-    'attendanceRate',
-    'weeklyStudyHours',
-    'quizAverage',
-    'midtermScore',
-    'assignmentScore',
-    'priorFailures',
+    'quiz',
+    'assignment',
+    'midterm',
+    'final',
+    'attendance',
+    'presentation',
   ];
 
   const dataset = DatasetParser.buildFeatureMatrix(
